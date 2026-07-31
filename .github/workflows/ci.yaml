@@ -45,3 +45,13 @@ jobs:
         uv run flake8 . --exclude=.venv --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         uv run flake8 . --exclude=.venv --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Run SAST with Bandit
+      # -r . tells it to scan the current directory recursively
+      # -x .venv tells it to ignore your virtual environment files
+      run: uv run bandit -r . -x .venv
+
+    - name: Scan dependencies for CVEs with pip-audit
+      # Because uv installs everything into .venv, running pip-audit 
+      # through `uv run` will automatically scan your active environment!
+      run: uv run pip-audit
