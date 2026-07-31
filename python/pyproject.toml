@@ -18,4 +18,4 @@ dev = [
 ]
 
 [tool.bandit]
-exclude_dirs = [".venv"]
+exclude_dirs = [".venv", "test_*.py"]

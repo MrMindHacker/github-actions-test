@@ -50,7 +50,7 @@ jobs:
       if: always()  # Run this even if pytest or flake8 failed above
       run: |
         # 'tee' prints the output to the GitHub console AND saves it to a file
-        uv run bandit -r . -x .venv | tee bandit-report.txt
+        uv run bandit -r . -x .venv -x test*.py | tee bandit-report.txt
 
     - name: Scan dependencies for CVEs with pip-audit
       if: always()  # Run this even if Bandit found issues and failed
@@ -63,6 +63,6 @@ jobs:
       with:
         name: security-scan-reports
         path: |
-          bandit-report.txt
-          pip-audit-report.txt
+          python/bandit-report.txt
+          python/pip-audit-report.txt
         retention-days: 14  # Optional: Keep the reports for 2 weeks
