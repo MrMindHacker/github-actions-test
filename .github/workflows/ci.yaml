@@ -47,11 +47,22 @@ jobs:
         uv run flake8 . --exclude=.venv --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Run SAST with Bandit
-      # -r . tells it to scan the current directory recursively
-      # -x .venv tells it to ignore your virtual environment files
-      run: uv run bandit -r . -x .venv
+      if: always()  # Run this even if pytest or flake8 failed above
+      run: |
+        # 'tee' prints the output to the GitHub console AND saves it to a file
+        uv run bandit -r . -x .venv | tee bandit-report.txt
 
     - name: Scan dependencies for CVEs with pip-audit
-      # Because uv installs everything into .venv, running pip-audit 
-      # through `uv run` will automatically scan your active environment!
-      run: uv run pip-audit
+      if: always()  # Run this even if Bandit found issues and failed
+      run: |
+        uv run pip-audit | tee pip-audit-report.txt
+
+    - name: Upload Security Reports
+      uses: actions/upload-artifact@v4
+      if: always()  # Crucial: Upload the files even if the workflow is marked as 'failed'
+      with:
+        name: security-scan-reports
+        path: |
+          bandit-report.txt
+          pip-audit-report.txt
+        retention-days: 14  # Optional: Keep the reports for 2 weeks
